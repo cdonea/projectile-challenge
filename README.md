@@ -1,6 +1,6 @@
 # ng2-lite-boilerplate
 
-Extremely light boiler plate for Angular 2
+Extremely light boilerplate for Angular 2
 
 ### Install
 
