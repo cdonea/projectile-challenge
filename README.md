@@ -1,6 +1,6 @@
 # ng2-lite-boilerplate
 
-Extremely light boilerplate for Angular 2
+Projectile Challenge in  Angular 2
 
 ### Install
 
