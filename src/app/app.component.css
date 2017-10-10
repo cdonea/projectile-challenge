@@ -9,7 +9,7 @@ svg {
 .projectile-path {
   fill-opacity: 0;
   stroke: #000;
-  stroke-width: 3;
+  stroke-width: 1;
   stroke-dasharray: 870;
   stroke-dashoffset: 870;
   }

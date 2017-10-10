@@ -1,3 +1,8 @@
+interface CurveSize {
+    width: number;
+    height: number;
+}
+
 import { 
     Component, 
     OnInit, 
@@ -34,30 +39,33 @@ export class AppComponent implements OnInit {
     }
 
     private createNewProjectile() {
-        let trajectory = this.generateRandomTrajectory();// eg: 'M0 160 Q 90 -40 180 150';
-        
-        // let randomID = this.getRandomNumber(30);
-        // this.createNewSVG(randomID, trajectory);
+        let height = this.getRandomNumber(500);
+        let width = this.getRandomNumber(500);
 
-        let flightPath = this.renderer.selectRootElement('.projectile-path');
-        this.renderer.setAttribute(flightPath, 'd', trajectory);
-        this.renderer.setStyle(flightPath, 'animation', 'draw 5s infinite linear');
+        let trajectory = this.generateRandomTrajectory({ height: height, width: width });// eg: 'M0 160 Q 90 -40 180 150';
+        
+        let randomID = this.getRandomNumber(30);
+        this.createNewSVG(randomID, trajectory, { height: height, width: 2 *  width });
+
+        let projectilePath = this.renderer.selectRootElement('.projectile-path');
+        this.renderer.setAttribute(projectilePath, 'd', trajectory);
+        this.renderer.setStyle(projectilePath, 'animation', 'draw 5s infinite linear');
         
         
     }
 
-    private generateRandomTrajectory(): string {
+    private generateRandomTrajectory(size: CurveSize): string {
         let startPointX, startPointY, 
             endPointX, endPointY,
             controlPointX, controlPointY;
 
         startPointX = 0; //always left corner bottom
-        startPointY = endPointY = this.getRandomNumber(500);
-
-        controlPointX = this.getRandomNumber(250);
-        controlPointY = this.getRandomNumber(200);
-
+        startPointY = endPointY = size.width;
         endPointX = this.getRandomNumber(250);
+        
+        controlPointX = (startPointX + endPointX) / 2;
+        controlPointY = size.height;
+
         
         // eg: 'M0 160 Q 90 -40 180 150'
         return 'M' + startPointX + ' ' + startPointY + 
@@ -66,11 +74,13 @@ export class AppComponent implements OnInit {
     }
 
     /* Adding SVGs dinamically is not applining the animation :( */
-    private createNewSVG(randomID: number, trajectory: string) {
+    private createNewSVG(randomID: number, trajectory: string, size: CurveSize) {
         let svgNS = 'http://www.w3.org/';
 
         let svgRoot = this.renderer.createElement('svg');//document.createElementNS(svgNS, 'svg');
         this.renderer.setAttribute(svgRoot, 'id', 'projectile-' + randomID);
+        this.renderer.setAttribute(svgRoot, 'height', size.height.toString());
+        this.renderer.setAttribute(svgRoot, 'width', size.width.toString());
         this.renderer.selectRootElement('.container').appendChild(svgRoot);
         
         this.renderer.setAttribute(svgRoot, 'xmlns', svgNS + '2000/svg');
