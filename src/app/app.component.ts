@@ -2,13 +2,22 @@ interface CurveSize {
     width: number;
     height: number;
 }
+interface QuadricCoordinates {
+    '0': number
+    '1': number
+    '2': number
+}
+interface Point {
+    x: number;
+    y: number;
+}
 
-import { 
-    Component, 
-    OnInit, 
-    Renderer2, 
+import {
+    Component,
+    OnInit,
+    Renderer2,
     ElementRef,
-    ChangeDetectorRef 
+    ChangeDetectorRef
 } from '@angular/core';
 
 @Component({
@@ -22,55 +31,47 @@ export class AppComponent implements OnInit {
     changeDetector: ChangeDetectorRef;
 
     constructor(
-        private elementRef: ElementRef, 
+        private elementRef: ElementRef,
         renderer: Renderer2,
         changeDetector: ChangeDetectorRef
-    ) { 
+    ) {
         this.renderer = renderer;
         this.changeDetector = changeDetector;
     }
 
     ngOnInit() {
+        const x = this.generateX();
+        const y = this.generateY();
+        const xyCoord :Point[] = this.generateXYCoordinates(x, y);
+        this.moveBallOnCoordinates(xyCoord);
         
+        this.createNewProjectile(x, y);
     }
 
     showProjectile() {
-        this.createNewProjectile();
+        const x = this.generateX();
+        const y = this.generateY();
+        const xyCoord :Point[] = this.generateXYCoordinates(x, y);
+        // this.moveBallOnCoordinates();
+
     }
 
-    private createNewProjectile() {
-        let height = this.getRandomNumber(500);
-        let width = this.getRandomNumber(500);
+    private createNewProjectile(x: QuadricCoordinates, y: QuadricCoordinates) {
+        let trajectory = this.generateRandomTrajectory(x, y);// eg: 'M0 160 Q 90 -40 180 150';
 
-        let trajectory = this.generateRandomTrajectory({ height: height, width: width });// eg: 'M0 160 Q 90 -40 180 150';
-        
         let randomID = this.getRandomNumber(30);
-        this.createNewSVG(randomID, trajectory, { height: height, width: 2 *  width });
-
+        // this.createNewSVG(randomID, trajectory, { height: height, width: 2 * width });
+        
         let projectilePath = this.renderer.selectRootElement('.projectile-path');
         this.renderer.setAttribute(projectilePath, 'd', trajectory);
         this.renderer.setStyle(projectilePath, 'animation', 'draw 5s infinite linear');
-        
-        
     }
 
-    private generateRandomTrajectory(size: CurveSize): string {
-        let startPointX, startPointY, 
-            endPointX, endPointY,
-            controlPointX, controlPointY;
-
-        startPointX = 0; //always left corner bottom
-        startPointY = endPointY = size.width;
-        endPointX = this.getRandomNumber(250);
-        
-        controlPointX = (startPointX + endPointX) / 2;
-        controlPointY = size.height;
-
-        
+    private generateRandomTrajectory(x: QuadricCoordinates, y: QuadricCoordinates): string {
         // eg: 'M0 160 Q 90 -40 180 150'
-        return 'M' + startPointX + ' ' + startPointY + 
-               ' Q ' + controlPointX + ' -' + controlPointY +
-               ' ' + endPointX + ' ' + endPointY; 
+        return 'M' + x['0'] + ' ' + y['0'] +
+            ' Q ' + x['1'] + ' -' + y['1'] +
+            ' ' + x['2'] + ' ' + y['2'];
     }
 
     /* Adding SVGs dinamically is not applining the animation :( */
@@ -79,10 +80,9 @@ export class AppComponent implements OnInit {
 
         let svgRoot = this.renderer.createElement('svg');//document.createElementNS(svgNS, 'svg');
         this.renderer.setAttribute(svgRoot, 'id', 'projectile-' + randomID);
-        this.renderer.setAttribute(svgRoot, 'height', size.height.toString());
-        this.renderer.setAttribute(svgRoot, 'width', size.width.toString());
+        this.setSVGSize('projectile-' + randomID, size);
         this.renderer.selectRootElement('.container').appendChild(svgRoot);
-        
+
         this.renderer.setAttribute(svgRoot, 'xmlns', svgNS + '2000/svg');
         this.renderer.setAttribute(svgRoot, 'xmlns:xlink', svgNS + '2000/xlink');
 
@@ -92,8 +92,90 @@ export class AppComponent implements OnInit {
         this.renderer.selectRootElement('#projectile-' + randomID).appendChild(flightPath);
     }
 
+    private setSVGSize(id: string, size: CurveSize) {   
+        let svgRoot = this.renderer.selectRootElement('#' + id);
+        this.renderer.setAttribute(svgRoot, 'height', size.height.toString());
+        this.renderer.setAttribute(svgRoot, 'width', size.width.toString());
+    }
     private getRandomNumber(limit: number): number {
         return Math.floor(Math.random() * limit + 1);
+    }
+
+    private computeCoordonate(t: number, coordonate: QuadricCoordinates): number {
+        return (1 - t) * 2 * coordonate['0'] + 2 * t * (1 - t) * coordonate['1'] + t * 2 * coordonate['2'];
+    }
+
+    private generateX(): QuadricCoordinates {
+        let startPointX = 0; //always left corner bottom
+        let endPointX = 94//this.getRandomNumber(250);
+        let controlPointX = (startPointX + endPointX) / 2;
+
+        return {
+            '0': startPointX,
+            '1': controlPointX,
+            '2': endPointX
+        }
+    }
+    private generateY() {
+        let startPointY,
+            endPointY,
+            controlPointY;
+
+        
+        startPointY = endPointY = 270//this.getRandomNumber(500);
+        controlPointY = 123//this.getRandomNumber(500);
+
+        return {
+            '0': startPointY,
+            '1': controlPointY,
+            '2': endPointY
+        }
+    }
+    private generateXYCoordinates(x: QuadricCoordinates, y: QuadricCoordinates): Point[] {
+        let points: Point[] = [];
+        Object.keys(x).map((prop, val, index) => {
+            points.push({x: x[prop], y: y[prop]})
+        });
+        return points;
+    }
+    private generatePoints(coordinate: QuadricCoordinates): number[] {
+        let animationSteps: number[] = [];
+        animationSteps.push(this.computeCoordonate(0.25, coordinate));
+        animationSteps.push(this.computeCoordonate(0.5, coordinate));
+        animationSteps.push(this.computeCoordonate(0.75, coordinate));
+        animationSteps.push(this.computeCoordonate(1, coordinate));
+
+        return animationSteps
+    }
+
+    private moveBallOnCoordinates(coordinates: Point[]) {
+        let ball = this.renderer.selectRootElement('.ball');
+        
+        let animation = this.generateKeyframes(coordinates);
+        
+        this.renderer.setStyle(ball, 'animation', 'bounce 2.5s infinite linear;');
+    
+    }
+
+    private generateKeyframes(coordinates: Point[]) {
+        return  `@keyframes curvedLine {
+            0% {
+              transform: translate(0px, 0px);   
+            }
+          
+            25% {
+              transform: translate(${coordinates[0].x}, ${coordinates[0].y});  
+            }
+            50% {
+              transform: translate(${coordinates[1].x}, ${coordinates[1].y});
+            }
+            75% {
+              transform: translate(${coordinates[2].x}, ${coordinates[2].y});
+            }
+            100% {
+              transform: translate(${coordinates[0].x}, ${coordinates[0].y});
+            }
+          }`
     }
 }
 
