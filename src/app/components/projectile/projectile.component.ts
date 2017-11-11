@@ -7,17 +7,14 @@ import { ProjectileService } from './projectile.service';
   styleUrls: ['./projectile.component.css'],
   providers: [ProjectileService]
 })
-export class ProjectileComponent implements OnInit {
-  private projectileSrv: ProjectileService;
-  
-  public animationTime: number;
-  public quadricPoints: 
-  
-  constructor(projectileSrv: ProjectileService) {
-    this.projectileSrv = projectileSrv;
-  }
 
-  ngOnInit(){
+export class ProjectileComponent implements OnInit {
+  public animationTime: number;
+  public quadricPoints: any;
+
+  constructor(private projectileSrv: ProjectileService) { }
+
+  ngOnInit() {
     this.projectileSrv.generateNewProjectile();
   }
 
