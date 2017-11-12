@@ -1,7 +1,27 @@
-<div class="container">
-    <svg _ngcontent-c0="" width="246" height="270" id="projectile" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/2000/xlink">
-        <path _ngcontent-c0="" class="projectile-path"></path>
+<div class="container" (click)="showProjectile($event)">
+    <svg class="projectile-svg" 
+        [attr.width]="controlX" 
+        [attr.height]="controlY"
+        viewBox="0 0 500 350"  
+        [style.left.px]="startPoint?.x" 
+        [style.bottom.px]="windowHeight - startPoint?.y">
+
+        <path id="motionPath" fill="none" class="projectile-path" stroke="#000000" 
+            stroke-miterlimit="10" 
+            d="M0 223 Q 47 -123 94 223"
+            style="animation: draw 2s ease-in-out infinite;" />
+        <circle id="circle" r="10" cx="0" cy="0" fill="tomato" />
+
+        <animateMotion xlink:href="#circle" dur="4500ms" begin="0s" fill="freeze" repeatCount="infinite">
+            <mpath xlink:href="#motionPath" />
+        </animateMotion>
+
+        <path id="bouncePath" fill="none" d="M94 223 Q 94 253 94 223"
+        style="animation: draw 6s linear infinite;" />
+        <circle id="circle2" r="10" cx="0" cy="0" fill="tomato" />
+        <animateMotion xlink:href="#circle2" dur="1100ms" begin="7s" fill="freeze" repeatCount="infinite">
+            <mpath xlink:href="#bouncePath" />
+        </animateMotion>
     </svg>
 
-    <div class="ball"></div>
 </div>

@@ -1,4 +1,5 @@
-<div (click)="showProjectile()">
+<div (click)="showProjectile($event)">
     <h1>Projectile challenge</h1>
-    <projectile></projectile>
+    <h3>Click on the page</h3>
+    <projectile [startPoint]="clickCoord"></projectile>
 </div>
