@@ -39,8 +39,4 @@ export class ProjectileComponent implements OnInit {
   ngOnInit() {
     this.projectileSrv.generateNewProjectile();
   }
-
-  showProjectile($event: MouseEvent) {
-    this.projectileSrv.showProjectile();
-  }
 }

@@ -22,8 +22,6 @@ export class ProjectileService {
         // this.renderer.setAttribute(bouncePath, 'd', 'M' + 2 * this.controlX + '0 Q 94 ' + this.controlY + ' 94 ' + this.controlY);
     }
 
-    public showProjectile() { }
-
     private createNewProjectile(x: number, y: number) {
         let trajectory = this.generateRandomTrajectory(x, y);// eg: 'M0 160 Q 90 -40 180 150';
 
@@ -42,16 +40,25 @@ export class ProjectileService {
 
     /* Adding SVGs dinamically is not applining the animation :( */
     private createNewSVG(randomID: number, trajectory: string, size: CurveSize) {
-        let svgNS = 'http://www.w3.org/';
+        this.configSvg(randomID, size);
+        this.createSVGPath(randomID);
+    }
 
+    private configSvg(randomID: number, size: CurveSize) {
+        let svgNS = 'http://www.w3.org/';
+        
         let svgRoot = this.renderer.createElement('svg');//document.createElementNS(svgNS, 'svg');
+        //configure svg
         this.renderer.setAttribute(svgRoot, 'id', 'projectile-' + randomID);
         this.setSVGSize('projectile-' + randomID, size);
-        this.renderer.selectRootElement('.container').appendChild(svgRoot);
-
         this.renderer.setAttribute(svgRoot, 'xmlns', svgNS + '2000/svg');
         this.renderer.setAttribute(svgRoot, 'xmlns:xlink', svgNS + '2000/xlink');
 
+        this.renderer.selectRootElement('.container').appendChild(svgRoot);
+    }
+
+    private createSVGPath(randomID: number) {
+        // create svg path
         let flightPath = this.renderer.createElement('path');
         this.renderer.setAttribute(flightPath, 'class', 'projectile-path');
         // this.renderer.setAttribute(flightPath, 'd', trajectory);
@@ -63,6 +70,7 @@ export class ProjectileService {
         this.renderer.setAttribute(svgRoot, 'height', size.height.toString());
         this.renderer.setAttribute(svgRoot, 'width', size.width.toString());
     }
+
     private getRandomNumber(max: number, min?: number): number {
         if (min) {
             return Math.floor(Math.random() * (max - min) + min + 100);
