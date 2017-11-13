@@ -1,9 +1,8 @@
 <div class="container" (click)="showProjectile($event)">
-    <svg class="projectile-svg" 
-        [attr.width]="controlX" 
-        [attr.height]="controlY"
+    <svg class="projectile-svg"
         viewBox="0 0 500 350"  
-        [style.left.px]="startPoint?.x" 
+        [style.left.px]="startPoint?.x"
+        [attr.height.px]="controlY" 
         [style.bottom.px]="windowHeight - startPoint?.y">
 
         <path id="motionPath" fill="none" class="projectile-path" stroke="#000000" 
@@ -16,12 +15,12 @@
             <mpath xlink:href="#motionPath" />
         </animateMotion>
 
-        <path id="bouncePath" fill="none" d="M94 223 Q 94 253 94 223"
+        <!-- <path id="bouncePath" fill="none" d="M94 223 Q 94 253 94 223"
         style="animation: draw 6s linear infinite;" />
         <circle id="circle2" r="10" cx="0" cy="0" fill="tomato" />
         <animateMotion xlink:href="#circle2" dur="1100ms" begin="7s" fill="freeze" repeatCount="infinite">
             <mpath xlink:href="#bouncePath" />
-        </animateMotion>
+        </animateMotion> -->
     </svg>
 
 </div>
